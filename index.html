@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Royal Solitaire</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Cinzel:wght@400;600&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ══════════════ SETUP OVERLAY ══════════════ -->
+  <div id="overlay">
+    <div class="modal">
+      <h1 class="glow-gold">Royal Solitaire</h1>
+      <p class="subtitle">A Game of Cards &amp; Fortune</p>
+
+      <div class="form-group">
+        <label>Choose Mode</label>
+        <div class="mode-btns">
+          <button class="mode-btn active" id="btn-single" onclick="selectMode('single')">
+            <span class="icon">🎮</span>vs Computer
+          </button>
+          <button class="mode-btn" id="btn-double" onclick="selectMode('double')">
+            <span class="icon">👥</span>2 Players
+          </button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Player 1 Name</label>
+        <input type="text" id="p1name" placeholder="Enter your name" maxlength="16" value="Player 1">
+      </div>
+
+      <div class="form-group" id="p2-name-group" style="display:none">
+        <label>Player 2 Name</label>
+        <input type="text" id="p2name" placeholder="Enter name" maxlength="16" value="Player 2">
+      </div>
+
+      <button class="btn-primary" onclick="startGame()">♠ Deal Cards ♠</button>
+    </div>
+  </div>
+
+  <!-- ══════════════ HUD ══════════════ -->
+  <div id="hud" style="display:none">
+    <div class="hud-player" id="hud-p1">
+      <div class="hud-name" id="hud-p1-name">Player 1</div>
+      <div class="hud-score" id="hud-p1-score">0 pts</div>
+    </div>
+
+    <div class="turn-indicator">
+      <div class="turn-pulse" id="turn-pulse"></div>
+      <div id="turn-text">TURN</div>
+      <div id="shuffle-count"></div>
+    </div>
+
+    <div class="hud-player" id="hud-p2">
+      <div class="hud-score" id="hud-p2-score">0 pts</div>
+      <div class="hud-name" id="hud-p2-name">Player 2</div>
+      <button class="end-game-btn" onclick="confirmEndGame()" title="End Game">✕</button>
+    </div>
+  </div>
+
+  <!-- ══════════════ GAME AREA ══════════════ -->
+  <div id="game">
+    <div id="play-area">
+
+      <!-- P2 hand (top, rotated) -->
+      <div class="player-zone" id="p2-zone">
+        <div class="player-label" id="p2-label">P2</div>
+      </div>
+
+      <!-- Centre -->
+      <div id="centre-area">
+        <div id="deck-zone">
+          <div id="deck-pile" onclick="drawCard()">
+            <div class="card-stack"><div class="card-back"><div class="card-back-pattern"></div><div class="card-back-emblem">♚</div></div></div>
+            <div class="card-stack"><div class="card-back"><div class="card-back-pattern"></div><div class="card-back-emblem">♚</div></div></div>
+            <div class="card-stack"><div class="card-back"><div class="card-back-pattern"></div><div class="card-back-emblem">♚</div></div></div>
+            <div id="deck-count"></div>
+          </div>
+        </div>
+
+        <div id="action-btns">
+          <button class="action-btn claim-btn" onclick="attemptClaim()">⚑ Claim Win</button>
+          <button class="action-btn" onclick="passTurn()">→ Pass Turn</button>
+          <button class="action-btn" onclick="shuffleDeck()">⟳ Shuffle</button>
+        </div>
+      </div>
+
+      <!-- P1 hand (bottom) -->
+      <div class="player-zone" id="p1-zone">
+        <div class="player-label" id="p1-label">P1</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════ DISCARD BANNER ══════════════ -->
+  <div id="discard-banner">👆 TAP A CARD TO DISCARD IT BACK TO THE DECK</div>
+
+  <!-- ══════════════ CLAIM PROMPT ══════════════ -->
+  <div id="claim-prompt">
+    <div class="claim-prompt-box">
+      <div class="claim-prompt-icon">🎉</div>
+      <div class="claim-prompt-title" id="cp-title">Winning Hand!</div>
+      <div class="claim-prompt-sub" id="cp-sub">Three of a Kind</div>
+      <div class="claim-prompt-pts" id="cp-pts">+100 pts</div>
+      <div class="claim-prompt-btns">
+        <button class="action-btn claim-btn" id="cp-claim-btn" onclick="claimFromPrompt()">⚑ Claim Now</button>
+        <button class="action-btn" onclick="passFromPrompt()">→ Pass Turn</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ TOAST ══════════════ -->
+  <div id="toast"></div>
+
+  <!-- ══════════════ WIN MODAL ══════════════ -->
+  <div id="win-modal">
+    <div class="win-box">
+      <h2 id="win-title">Claim!</h2>
+      <p class="win-sub" id="win-sub">Winning hand detected</p>
+      <div class="win-points" id="win-pts">+100</div>
+      <div class="win-box-btns">
+        <button class="action-btn" onclick="continueGame()">▶ Continue</button>
+        <button class="action-btn" onclick="endGame()">✕ End Game</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ CONFIRM END GAME ══════════════ -->
+  <div id="confirm-end">
+    <div class="confirm-box">
+      <h3>End the Game?</h3>
+      <p>Current scores will be tallied and a winner declared.</p>
+      <div class="confirm-btns">
+        <button class="action-btn claim-btn" onclick="endGame()">✕ Yes, End Game</button>
+        <button class="action-btn" onclick="closeConfirmEnd()">↩ Keep Playing</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ SCOREBOARD ══════════════ -->
+  <div id="scoreboard">
+    <div class="score-box">
+      <h2>Game Over</h2>
+      <p class="score-subtitle">FINAL SCORES</p>
+      <div class="score-row">
+        <span id="sb-p1-name">P1</span>
+        <span class="score-pts" id="sb-p1-pts">0</span>
+      </div>
+      <div class="score-row score-row-last">
+        <span id="sb-p2-name">P2</span>
+        <span class="score-pts" id="sb-p2-pts">0</span>
+      </div>
+      <div class="score-winner" id="sb-winner"></div>
+      <div class="scoreboard-actions">
+        <button class="action-btn" onclick="newGame()">↺ New Game</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ THINKING ══════════════ -->
+  <div id="thinking">🤖 Computer thinking<span class="dot-anim"></span></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
