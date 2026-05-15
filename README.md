@@ -121,6 +121,6 @@ To host this project on GitHub Pages:
 
 `https://<your-github-username>.github.io/ModernSollitare`
 
-> Hosted link: `https://<your-github-username>.github.io/ModernSollitare`
+Currently it is hosted and reference link is :: 
+> Hosted link: `https://Dhannussh1.github.io/ModernSollitare`
 
-Replace `<your-github-username>` with your GitHub username after deployment.
